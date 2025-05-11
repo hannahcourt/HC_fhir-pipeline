@@ -1,6 +1,6 @@
 """ Module to transfrom and process raw data."""
 import pandas as pd
-from config import PATIENT_RESOURCE_TYPE
+from config import PATIENT_RESOURCE_TYPE, COLUMN_RENAME_MAP
 
 
 def flatten_dict(d, parent_key='', sep='.'):
@@ -53,6 +53,47 @@ def transform_resources(fhir_data):
                    records.append(flat_resource_type)
    return pd.DataFrame(records)
 
+
+def rename_and_filter_columns(df: pd.DataFrame, column_rename_map=COLUMN_RENAME_MAP) -> pd.DataFrame:
+   """
+   Renames columns in the DataFrame according to a provided mapping and filters out columns not in the map.
+  
+   Args:
+       df (pd.DataFrame): The DataFrame whose columns need to be renamed and filtered.
+       column_rename_map (dict, optional): A dictionary mapping old column names to new names. Defaults to `COLUMN_RENAME_MAP`.
+
+
+   Returns:
+       pd.DataFrame: A DataFrame with renamed columns and only the relevant columns retained.
+   """
+   renamed_cols = {k: v for k, v in column_rename_map.items() if k in df.columns}
+   df_renamed = df.rename(columns=renamed_cols)
+   filtered_cols = [v for v in column_rename_map.values() if v in df_renamed.columns]
+   return df_renamed[filtered_cols].reset_index(drop=True)
+
+def clean_null_values(df: pd.DataFrame) -> pd.DataFrame:
+   """
+   Cleans missing values in the DataFrame by filling null values based on the column type and removing duplicates.
+  
+   Args:
+       df (pd.DataFrame): The DataFrame to clean.
+
+
+   Returns:
+       pd.DataFrame: A DataFrame with cleaned null values and removed duplicates based on specific columns.
+   """
+   df = df[df['patient_id'].notna() & (df['patient_id'] != '0')]
+   for col in df.columns:
+       if pd.api.types.is_bool_dtype(df[col]):
+           df[col] = df[col].fillna(False)
+       elif pd.api.types.is_numeric_dtype(df[col]):
+           df[col] = df[col].fillna(0)
+           if ((df[col] % 1 == 0) | (df[col].isnull())).all():
+               df[col] = df[col].astype(int)
+       elif pd.api.types.is_string_dtype(df[col]) or pd.api.types.is_object_dtype(df[col]):
+           df[col] = df[col].where(df[col].notnull(), None)
+   df = df.drop_duplicates(subset=['patient_id', 'phone', 'address_line'], keep='first')
+   return df.reset_index(drop=True)
 
 
 

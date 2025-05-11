@@ -1,7 +1,7 @@
 """ Module to test data transfromformation and processing. """
 import pandas as pd
-from transformation import transform_resources, flatten_dict
-
+from transformation import transform_resources, flatten_dict, clean_null_values, rename_and_filter_columns
+import numpy as np
 
 def test_flatten_dict():
    """
@@ -142,3 +142,134 @@ def test_transform_resources():
 
 
    pd.testing.assert_frame_equal(result_df, expected_df)
+
+
+
+def test_rename_and_filter_columns():
+   """
+   Test renaming and filtering of DataFrame columns using COLUMN_RENAME_MAP.
+
+
+   Covers:
+   - Standard case where all columns are present.
+   - Case where some column_rename_map keys are missing from the input DataFrame.
+   """
+   column_rename_map = {
+   'id': 'patient_id',
+   'name.0.given.0': 'first_name',
+   'name.0.family': 'last_name',
+   'gender': 'gender',
+   'birthDate': 'dob'
+   }
+
+
+   input_df_all = pd.DataFrame([
+       {
+           'id': '001',
+           'name.0.given.0': 'Alice',
+           'name.0.family': 'Wonderland',
+           'gender': 'female',
+           'birthDate': '2000-01-01',
+           'unused_column': 'ignore_me'
+       }
+   ])
+
+
+   expected_df_all = pd.DataFrame([
+       {
+           'patient_id': '001',
+           'first_name': 'Alice',
+           'last_name': 'Wonderland',
+           'gender': 'female',
+           'dob': '2000-01-01'
+       }
+   ])
+
+
+   result_df_all = rename_and_filter_columns(input_df_all, column_rename_map)
+   pd.testing.assert_frame_equal(result_df_all, expected_df_all)
+
+   input_df_partial = pd.DataFrame([
+       {'id': '123', 'gender': 'male'}
+   ])
+   expected_df_partial = pd.DataFrame([
+       {'patient_id': '123', 'gender': 'male'}
+   ])[['patient_id', 'gender']] 
+
+   result_df_partial = rename_and_filter_columns(input_df_partial, column_rename_map)
+   pd.testing.assert_frame_equal(result_df_partial, expected_df_partial)
+
+
+def test_clean_null_values():
+   """
+   Test handling of null values in numeric and non-numeric columns,
+   ensuring invalid patient_id (Null or 0) rows are dropped correctly,
+   and duplicates are handled.
+   """
+
+
+   input_df = pd.DataFrame([{
+       'patient_id': '001',
+       'first_name': np.nan,
+       'last_name': 'Doe',
+       'gender': np.nan,
+       'dob': '1980-01-01',
+       'multiple_birth_number': np.nan, 
+       'phone': np.nan, 
+       'address_line': np.nan
+   }, {
+       'patient_id': '0', 
+       'first_name': 'Jane',
+       'last_name': 'Doe',
+       'gender': 'female',
+       'dob': '1985-01-01',
+       'multiple_birth_number': 2.0,
+       'phone': '123-456-7890',
+       'address_line': '123 Elm St'
+   }, {
+       'patient_id': np.nan, 
+       'first_name': 'John',
+       'last_name': 'Doe',
+       'gender': 'male',
+       'dob': '1980-01-01',
+       'multiple_birth_number': 0.0, 
+       'phone': '987-654-3210',
+       'address_line': '456 Oak St'
+  }, {
+       'patient_id': '001',
+       'first_name': 'John',
+       'last_name': 'Doe',
+       'gender': 'male',
+       'dob': '1980-01-01',
+       'multiple_birth_number': 0.0,
+       'phone': '123-456-7890',
+       'address_line': '123 Elm St'
+   }])
+
+   expected_df = pd.DataFrame([{
+       'patient_id': '001',
+       'first_name': np.nan,
+       'last_name': 'Doe',
+       'gender': np.nan, 
+       'dob': '1980-01-01',
+       'multiple_birth_number': 0.0,
+       'phone': np.nan,
+       'address_line': np.nan 
+   }, {
+       'patient_id': '001',
+       'first_name': 'John', 
+       'last_name': 'Doe',
+       'gender': 'male',
+       'dob': '1980-01-01',
+       'multiple_birth_number': 0.0, 
+       'phone': '123-456-7890', 
+       'address_line': '123 Elm St' 
+   }])
+
+
+   result_df = clean_null_values(input_df)
+   result_df = result_df.where(pd.notnull(result_df), np.nan)
+   expected_df = expected_df.where(pd.notnull(expected_df), np.nan)
+
+
+   pd.testing.assert_frame_equal(result_df, expected_df, check_dtype=False)
