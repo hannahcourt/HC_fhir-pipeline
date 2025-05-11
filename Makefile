@@ -26,17 +26,3 @@ clean:
 	@echo "Cleaning up compiled Python files..."
 	find . -name "*.pyc" -delete
 
-# Build the Docker image
-docker-build:
-	@echo "Building Docker image..."
-	docker build -t fhir-pipeline .
-
-# Run the Docker container (mount data volume)
-docker-run:
-	@echo "Running pipeline in Docker..."
-	docker run --rm -v $(PWD)/data:/app/data fhir-pipeline
-
-# Run unit tests in Docker
-docker-test:
-	@echo "Running tests in Docker..."
-	docker run --rm -v $(PWD)/data:/app/data -v $(PWD)/tests:/app/tests -v $(PWD)/src:/app/src -e PYTHONPATH=/app/src fhir-pipeline pytest /app/tests --maxfail=5 --disable-warnings -q

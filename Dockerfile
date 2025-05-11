@@ -1,23 +1,20 @@
+# Use an official Python runtime as a base image
+FROM python:3.9-slim
 
-FROM python:3.10-slim
-
-# Set working directory in the container
+# Set the working directory in the container
 WORKDIR /app
 
-# Copy the current project into the container
-COPY . .
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-# Install runtime dependencies (this includes both runtime and dev dependencies)
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install any dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Create data directories (optional safety)
-RUN mkdir -p data/raw data/processed
+# Set environment variable to disable interactive prompts (optional)
+ENV PYTHONUNBUFFERED 1
 
-# Default command to run the pipeline
-# This can be overridden when running tests, so it doesn't conflict
+# Expose the port the app runs on (if applicable)
+EXPOSE 8080
+
+# Run the pipeline script (replace with your actual script name)
 CMD ["python", "src/main.py"]
-
-
-
-
-

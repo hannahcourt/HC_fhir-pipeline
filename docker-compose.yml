@@ -1,17 +1,23 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: fhir_postgres
+  db:
+    image: postgres:13
     environment:
-      POSTGRES_USER: fhiruser
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: patients
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: testdb
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://testuser:testpass@db:5432/testdb
+    depends_on:
+      - db
 
 volumes:
-  pgdata:
+  postgres_data:
