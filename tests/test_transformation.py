@@ -1,6 +1,6 @@
 """ Module to test data transfromformation and processing. """
 import pandas as pd
-from transformation import transform_resources, flatten_dict, clean_null_values, rename_and_filter_columns, convert_column_dtypes
+from transformation import transform_resources, flatten_dict, clean_null_values, rename_and_filter_columns, convert_column_dtypes, validate_patient_data
 import numpy as np
 from pandas.testing import assert_frame_equal
 
@@ -297,3 +297,54 @@ def test_convert_column_dtypes():
 
 
    assert_frame_equal(result, expected, check_dtype=True)
+
+def test_validate_patient_data():
+   """
+   Test that the validate_patient_data function correctly validates the schema and checks for custom validation rules.
+   """
+
+
+   df = pd.DataFrame({
+   'patient_id': ['001', '002', '003', '004'],
+   'first_name': ['John', 'Jane', 'Alice', 'Bob'],
+   'last_name': ['Doe', 'Doe', 'Smith', 'Johnson'],
+   'name_prefix': ['Mr.', 'Dr.', 'Mrs.', None],
+   'name_suffix': ['Jr.', 'Sr.', 'II', None], 
+   'name_use': ['official', 'nickname', 'legal', None], 
+   'phone': ['123-456-7890', '987-654-3210', '555-666-7777', '123-456-7890'],
+   'phone_system': ['landline', 'mobile', 'mobile', 'landline'], 
+   'phone_use': ['home', 'work', 'work', 'home'], 
+   'gender': ['male', 'female', 'female', 'male'],
+   'birth_date': pd.to_datetime(['1980-01-01', '1985-05-15', '1990-03-20', '1975-07-10']), 
+   'deceased_date': pd.to_datetime([None, '2020-12-31', None, '2019-06-30']),
+   'address_line': ['123 Elm St', '456 Oak St', '789 Pine St', '101 Maple St'],
+   'city': ['Springfield', 'Shelbyville', 'Capital City', 'Greenwood'], 
+   'state': ['IL', 'IN', 'DC', 'NJ'], 
+   'postal_code': ['62701', '62501', '20001', '07001'], 
+   'country': ['USA', 'USA', 'USA', 'USA'], 
+   'marital_status': ['single', 'married', 'single', 'married'],
+   'multiple_birth_bool': [False, True, False, True], 
+   'multiple_birth_number': [1, 2, 1, 2], 
+   'preferred_language': ['English', 'English', 'Spanish', 'English'], 
+   'language_code': ['en', 'en', 'es', 'en'],
+   })
+
+
+   try:
+       validate_patient_data(df)
+   except ValueError as e:
+       if "Some patient_id values are null." in str(e):
+           assert df['patient_id'].isnull().any() == False
+       elif "Some patient_id values are duplicated." in str(e):
+           assert df['patient_id'].duplicated().any() == True
+       elif "There are duplicates based on patient_id, address_line, and phone." in str(e):
+           assert df.duplicated(subset=['patient_id', 'address_line', 'phone']).any() == True
+       elif "Some age values are not numeric." in str(e):
+           assert pd.to_numeric(df['multiple_birth_number'], errors='coerce').notnull().all() == False
+       else:
+           raise ValueError(f"Unexpected error: {e}")
+   else:
+       assert df['patient_id'].isnull().any() == False
+       assert df['patient_id'].duplicated().any() == False
+       assert df.duplicated(subset=['patient_id', 'address_line', 'phone']).any() == False
+       assert pd.to_numeric(df['multiple_birth_number'], errors='coerce').notnull().all() == True

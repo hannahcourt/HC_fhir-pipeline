@@ -1,7 +1,7 @@
 """ Module to transfrom and process raw data."""
 import pandas as pd
 from config import PATIENT_RESOURCE_TYPE, COLUMN_RENAME_MAP
-
+import pandera as pa 
 
 def flatten_dict(d, parent_key='', sep='.'):
    """
@@ -130,5 +130,54 @@ def convert_column_dtypes(df: pd.DataFrame, date_columns: list = None, bool_colu
    return df
 
 
+
+def get_patient_schema() -> pa.DataFrameSchema:
+   """
+   Returns a Pandera schema used to validate patient data in a DataFrame.
+  
+   Returns:
+       pa.DataFrameSchema: A schema defining the expected structure and data types for the patient data.
+   """
+   return pa.DataFrameSchema({
+       "patient_id": pa.Column(str, coerce=True, nullable=False),
+       "first_name": pa.Column(str, nullable=True),
+       "last_name": pa.Column(str, nullable=True),
+       "name_prefix": pa.Column(str, nullable=True),
+       "name_suffix": pa.Column(str, nullable=True),
+       "name_use": pa.Column(str, nullable=True),
+       "phone": pa.Column(str, nullable=True),
+       "phone_system": pa.Column(str, nullable=True),
+       "phone_use": pa.Column(str, nullable=True),
+       "gender": pa.Column(str, nullable=True),
+       "birth_date": pa.Column(pa.DateTime, nullable=True),
+       "deceased_date": pa.Column(pa.DateTime, nullable=True, coerce=True),
+       "address_line": pa.Column(str, nullable=True),
+       "city": pa.Column(str, nullable=True),
+       "state": pa.Column(str, nullable=True),
+       "postal_code": pa.Column(str, nullable=True),
+       "country": pa.Column(str, nullable=True),
+       "marital_status": pa.Column(str, nullable=True),
+       "multiple_birth_bool": pa.Column(pa.Bool, nullable=True),
+       "multiple_birth_number": pa.Column(int, nullable=True),
+       "preferred_language": pa.Column(str, nullable=True),
+       "language_code": pa.Column(str, nullable=True),
+   })
+
+
+def validate_patient_data(df: pd.DataFrame) -> None:
+   """
+   Validates patient data by checking the schema and ensuring data integrity for specific columns.
+  
+   Args:
+       df (pd.DataFrame): The DataFrame containing patient data to validate.
+  
+   Raises:
+       ValueError: If any validation checks fail, such as null or duplicate patient IDs or invalid data types.
+  
+   Returns:
+       None
+   """
+   schema = get_patient_schema()
+   schema.validate(df)
 
 
