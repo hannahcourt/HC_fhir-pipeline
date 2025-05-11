@@ -96,4 +96,39 @@ def clean_null_values(df: pd.DataFrame) -> pd.DataFrame:
    return df.reset_index(drop=True)
 
 
+def convert_column_dtypes(df: pd.DataFrame, date_columns: list = None, bool_columns: list = None) -> pd.DataFrame:
+   """
+   Converts specified columns in the DataFrame to appropriate data types, such as datetime for date columns
+   and boolean for boolean columns. Invalid values are coerced to NaT or NaN.
+  
+   Args:
+       df (pd.DataFrame): The DataFrame whose columns' data types need to be converted.
+       date_columns (list, optional): A list of column names to be converted to datetime. Defaults to None.
+       bool_columns (list, optional): A list of column names to be converted to boolean. Defaults to None.
+
+
+   Returns:
+       pd.DataFrame: A DataFrame with the specified columns converted to the appropriate data types.
+   """
+   if date_columns:
+       for col in date_columns:
+           if col in df.columns:
+               df[col] = pd.to_datetime(df[col], errors='coerce', utc=True)
+               df[col] = df[col].dt.tz_localize(None)
+
+
+   if bool_columns:
+       for col in bool_columns:
+           if col in df.columns:
+               df[col] = df[col].map({
+                   'True': True,
+                   'False': False,
+                   'NA': False
+               }).fillna(False)
+               df[col] = df[col].astype(bool)
+
+   return df
+
+
+
 

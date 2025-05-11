@@ -1,7 +1,8 @@
 """ Module to test data transfromformation and processing. """
 import pandas as pd
-from transformation import transform_resources, flatten_dict, clean_null_values, rename_and_filter_columns
+from transformation import transform_resources, flatten_dict, clean_null_values, rename_and_filter_columns, convert_column_dtypes
 import numpy as np
+from pandas.testing import assert_frame_equal
 
 def test_flatten_dict():
    """
@@ -12,7 +13,6 @@ def test_flatten_dict():
    - Correctly handles nested dictionaries and lists.
    - Outputs a flat dictionary with dot-separated keys.
    """
-
 
    input_data = {
        "resourceType": "Patient",
@@ -273,3 +273,27 @@ def test_clean_null_values():
 
 
    pd.testing.assert_frame_equal(result_df, expected_df, check_dtype=False)
+
+
+
+def test_convert_column_dtypes():
+
+
+   df = pd.DataFrame({
+       'patient_id': ['001', '002', '003'],
+       'birth_date': ['1980-01-01', 'invalid', None],
+       'multiple_birth_bool': ['True', 'False', 'NA'] 
+   })
+
+
+   expected = pd.DataFrame({
+       'patient_id': ['001', '002', '003'],
+       'birth_date': pd.to_datetime(['1980-01-01', pd.NaT, pd.NaT]), 
+       'multiple_birth_bool': [True, False, False]
+   })
+
+
+   result = convert_column_dtypes(df, date_columns=['birth_date'], bool_columns=['multiple_birth_bool'])
+
+
+   assert_frame_equal(result, expected, check_dtype=True)
