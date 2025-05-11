@@ -1,0 +1,13 @@
+{
+    "patient_id": "1",
+    "name": [
+        {
+            "family": "Doe",
+            "given": [
+                "John"
+            ]
+        }
+    ],
+    "gender": "male",
+    "birthDate": "1999-10-01"
+}

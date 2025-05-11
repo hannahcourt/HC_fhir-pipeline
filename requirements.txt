@@ -1,0 +1,12 @@
+pandas
+pyarrow
+loguru
+fhir.resources
+pydantic
+pandera
+sqlalchemy
+pytest
+pytest-docker
+docker
+psycopg2-binary
+
