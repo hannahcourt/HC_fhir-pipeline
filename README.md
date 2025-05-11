@@ -6,24 +6,25 @@ This project provides a pipeline to process and transform patient data in the FH
 
 ## 📁 Project Structure
 
+```
 fhir-pipeline/
 ├── data/
-│ ├── raw/ # Raw data received in FHIR format
-│ └── processed/ # Processed data in tabular format
+│   ├── raw/                # Raw data received in FHIR format
+│   └── processed/          # Processed data in tabular format
 ├── src/
-│ ├── config.py # Configuration variables
-│ ├── ingestion.py # Module to load and parse FHIR data
-│ ├── transformation.py # Module to clean and transform data
-│ ├── storage.py # Module to save data
-│ └── main.py # Main execution file for the pipeline
+│   ├── config.py           # Configuration variables
+│   ├── ingestion.py        # Module to load and parse FHIR data
+│   ├── transformation.py   # Module to clean and transform data
+│   ├── storage.py          # Module to save data
+│   └── main.py             # Main execution file for the pipeline
 ├── tests/
-│ ├── test_transformation.py # Unit tests for transformation logic
-│ └── test_ingestion.py # Unit tests for ingestion logic
-├── Dockerfile # Docker configuration
-├── Makefile # Simplifies common commands
-├── requirements.txt # Python dependencies
-└── README.md # Project documentation
-
+│   ├── test_transformation.py  # Unit tests for transformation logic
+│   └── test_ingestion.py       # Unit tests for ingestion logic
+├── Dockerfile              # Docker configuration
+├── Makefile                # Simplifies common commands
+├── requirements.txt        # Python dependencies
+└── README.md               # Project documentation
+```
 ---
 
 ## ⚙️ Setup
