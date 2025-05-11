@@ -7,6 +7,11 @@ RAW_DATA_DIR = os.path.join(ROOT_DIR, 'data/raw')
 CURRENT_DATE = datetime.today().strftime('%Y-%m-%d')
 PROCESSED_DATA_DIR = os.path.join(ROOT_DIR, f'data/processed/patients_{CURRENT_DATE}')
 
+DATABASE_URL = "postgresql+psycopg2://localhost/fhir_pipeline"
+TABLE_NAME = "patients"
+
+DATE_COLUMNS = ['birth_date', 'deceased_date']
+BOOL_COLUMNS = ['multiple_birth_bool']
 PATIENT_RESOURCE_TYPE = 'Patient'
 
 COLUMN_RENAME_MAP = {
