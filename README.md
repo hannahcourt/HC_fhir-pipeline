@@ -58,11 +58,7 @@ Runs tests using pytest inside a Docker container.
 `make install`
 Creates a venv virtual environment and installs runtime dependencies.
 
-### Step 2: Install Development Dependencies
-`make dev-install`
-Installs additional tools like pytest.
-
-### Step 3: Run Unit Tests Locally
+### Step 2: Run Unit Tests Locally
 `make test`
 Executes unit tests using pytest.
 
@@ -72,18 +68,14 @@ The pipeline uses PostgreSQL to persist patient data. If you're using Docker, th
 
 ### Step 1: Start the PostgreSQL Service
 
-`docker-compose up`
+`docker-compose up -d`
+
 This will start the database container. The DB is accessible at localhost:5432.
 
 ### Step 2: Connect to the Database
 
 Use psql to connect:
-`psql -h localhost -U testuser -d patients`
-
-Credentials:
-`User: testuser
-Password: testpass
-Database: testdb`
+`docker exec -it fhir-pipeline-db-1 psql -U testuser -d testdb`
 
 ### Step 3: View Table Contents
 
@@ -93,7 +85,7 @@ Once inside the psql CLI:
 Exit with:
 `\q`
 
-## 🔄 How the Pipeline Works
+## 🔄 How the Pipeline Works
 
 ### 1. Ingestion
 ingestion.py loads raw FHIR JSON from data/raw/.

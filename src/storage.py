@@ -21,35 +21,34 @@ def save_to_parquet(df, file_path):
    df.to_parquet(file_path, index=False)
 
 
-def save_to_postgres(df, table_name=TABLE_NAME, db_name=DATABASE_URL):
-   """
-   Saves a DataFrame to a PostgreSQL database table.
+from sqlalchemy import create_engine
 
+def save_to_postgres(df, table_name='patients', db_name='postgresql://testuser:testpass@db:5432/testdb'):
+    """
+    Saves a DataFrame to a PostgreSQL database table.
+    
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The DataFrame to be saved to the database.
+    
+    table_name : str, optional
+        The name of the table in the database where the DataFrame will be saved. Default is 'patients'.
+    
+    db_name : str, optional
+        The database connection URL. Default is 'postgresql://testuser:testpass@db:5432/testdb'.
+    
+    Returns
+    -------
+    None
+    """
+    try:
+        # Create the SQLAlchemy engine for connecting to the database
+        engine = create_engine(db_name)
 
-   This function takes a pandas DataFrame and writes it to a specified table
-   in a PostgreSQL database. If the table already exists, it will be replaced
-   with the new data. The database connection is established using SQLAlchemy's
-   `create_engine`.
+        # Save the DataFrame to PostgreSQL, replace the table if it already exists
+        df.to_sql(table_name, engine, if_exists='replace', index=False)
+        print(f"Data saved to {table_name} table.")
+    except Exception as e:
+        print(f"An error occurred while saving data to PostgreSQL: {e}")
 
-
-   Parameters:
-   ----------
-   df : pandas.DataFrame
-       The DataFrame to be saved to the database.
-      
-   table_name : str, optional
-       The name of the table in the database where the DataFrame will be saved. .
-
-
-   db_name : str, optional
-       The database connection URL. It should include the username, password, host,
-       port, and database name.
-
-
-   Returns:
-   -------
-   None
-       This function does not return any value. It saves the data to the specified database table.
-   """
-   engine = create_engine(db_name)
-   df.to_sql(table_name, engine, if_exists='replace', index=False)
