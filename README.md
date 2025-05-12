@@ -144,6 +144,7 @@ Install Docker Desktop from the official site: [https://www.docker.com/products/
 
 ## 🔧 How could this project be secured?
 
+- Code reviews and branching: Make future changes on separate branches to then be reviewed before merging. This prevents issues when the code is automated and in production.
 - Environment-based secrets: Replaces hardcoded database credentials with environment variables using os.environ, enabling secure secret management across environments.
 - Safe file handling: Accepts only valid .json files and prevents path traversal attacks by sanitizing and validating input filenames.
 - Log sanitisation: Avoids logging sensitive personally identifiable information such as names, IDs, or contact details, protecting data confidentiality in logs or print statements.
