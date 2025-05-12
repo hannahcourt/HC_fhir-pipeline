@@ -133,4 +133,3 @@ Run tests: `make docker-test`
 ## 🧰 Docker Installation
 
 Install Docker Desktop from the official site: [https://www.docker.com/products/docker-desktop]
-
