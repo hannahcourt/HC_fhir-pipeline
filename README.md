@@ -78,12 +78,12 @@ This will start the database container. The DB is accessible at localhost:5432.
 ### Step 2: Connect to the Database
 
 Use psql to connect:
-`psql -h localhost -U fhiruser -d patients`
+`psql -h localhost -U testuser -d patients`
 
 Credentials:
-`User: fhiruser
-Password: password
-Database: patients`
+`User: testuser
+Password: testpass
+Database: testdb`
 
 ### Step 3: View Table Contents
 
