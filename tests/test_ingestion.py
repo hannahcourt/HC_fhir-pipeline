@@ -1,7 +1,6 @@
 """ Module to test data ingestion. """
 from ingestion import load_fhir_data
 
-
 def test_load_fhir_data_full():
    """
    Test for loading FHIR data from a directory containing valid JSON files.

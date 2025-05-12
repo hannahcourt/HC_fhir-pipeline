@@ -6,7 +6,7 @@ from pandas.testing import assert_frame_equal
 
 def test_flatten_dict():
    """
-   Test case for flatten_dict that handles realistic FHIR Patient data.
+   Test case for flatten_dict that handles FHIR Patient data.
   
    This test ensures that the flatten_dict function:
    - Can flatten a realistic, nested FHIR patient record.
@@ -69,7 +69,6 @@ def test_flatten_dict():
        'contact.0.telecom.0.value': '555-1234'
    }
 
-
    result = flatten_dict(input_data)
    assert result == expected
 
@@ -84,7 +83,6 @@ def test_transform_resources():
    - The function properly flattens patient data.
    - The correct columns are extracted and transformed.
    """
-
 
    input_data = [
        {
@@ -117,9 +115,7 @@ def test_transform_resources():
        }
    ]
 
-
    result_df = transform_resources(input_data)
-
 
    expected_df = pd.DataFrame([
        {
@@ -139,10 +135,7 @@ def test_transform_resources():
            'birthDate': '1985-03-15'
        }
    ])
-
-
    pd.testing.assert_frame_equal(result_df, expected_df)
-
 
 
 def test_rename_and_filter_columns():
@@ -162,8 +155,7 @@ def test_rename_and_filter_columns():
    'birthDate': 'dob'
    }
 
-
-   input_df_all = pd.DataFrame([
+   input_df = pd.DataFrame([
        {
            'id': '001',
            'name.0.given.0': 'Alice',
@@ -174,8 +166,7 @@ def test_rename_and_filter_columns():
        }
    ])
 
-
-   expected_df_all = pd.DataFrame([
+   expected_df = pd.DataFrame([
        {
            'patient_id': '001',
            'first_name': 'Alice',
@@ -185,9 +176,8 @@ def test_rename_and_filter_columns():
        }
    ])
 
-
-   result_df_all = rename_and_filter_columns(input_df_all, column_rename_map)
-   pd.testing.assert_frame_equal(result_df_all, expected_df_all)
+   result_df_all = rename_and_filter_columns(input_df, column_rename_map)
+   pd.testing.assert_frame_equal(result_df_all, expected_df)
 
    input_df_partial = pd.DataFrame([
        {'id': '123', 'gender': 'male'}
@@ -206,7 +196,6 @@ def test_clean_null_values():
    ensuring invalid patient_id (Null or 0) rows are dropped correctly,
    and duplicates are handled.
    """
-
 
    input_df = pd.DataFrame([{
        'patient_id': '001',
@@ -271,20 +260,18 @@ def test_clean_null_values():
    result_df = result_df.where(pd.notnull(result_df), np.nan)
    expected_df = expected_df.where(pd.notnull(expected_df), np.nan)
 
-
    pd.testing.assert_frame_equal(result_df, expected_df, check_dtype=False)
 
 
 
 def test_convert_column_dtypes():
-
+   """ Test that certain column datatypes are correctly converted. """
 
    df = pd.DataFrame({
        'patient_id': ['001', '002', '003'],
        'birth_date': ['1980-01-01', 'invalid', None],
        'multiple_birth_bool': ['True', 'False', 'NA'] 
    })
-
 
    expected = pd.DataFrame({
        'patient_id': ['001', '002', '003'],
@@ -295,14 +282,12 @@ def test_convert_column_dtypes():
 
    result = convert_column_dtypes(df, date_columns=['birth_date'], bool_columns=['multiple_birth_bool'])
 
-
    assert_frame_equal(result, expected, check_dtype=True)
 
 def test_validate_patient_data():
    """
    Test that the validate_patient_data function correctly validates the schema and checks for custom validation rules.
    """
-
 
    df = pd.DataFrame({
    'patient_id': ['001', '002', '003', '004'],

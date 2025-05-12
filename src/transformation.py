@@ -116,7 +116,6 @@ def convert_column_dtypes(df: pd.DataFrame, date_columns: list = None, bool_colu
                df[col] = pd.to_datetime(df[col], errors='coerce', utc=True)
                df[col] = df[col].dt.tz_localize(None)
 
-
    if bool_columns:
        for col in bool_columns:
            if col in df.columns:
@@ -128,7 +127,6 @@ def convert_column_dtypes(df: pd.DataFrame, date_columns: list = None, bool_colu
                df[col] = df[col].astype(bool)
 
    return df
-
 
 
 def get_patient_schema() -> pa.DataFrameSchema:

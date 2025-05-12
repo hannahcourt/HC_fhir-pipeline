@@ -8,57 +8,56 @@ from loguru import logger
 def main():
    logger.info("Starting FHIR Patient data processing...")
 
-
    logger.info("Loading raw data...")
-   fhir_data = load_fhir_data(RAW_DATA_DIR)
+   raw_fhir_data = load_fhir_data(RAW_DATA_DIR)
 
-   if not fhir_data:
+   if not raw_fhir_data:
        logger.warning("No files found in the raw data directory.")
        return
-   logger.info(f"Loaded {len(fhir_data)} FHIR bundles.")
+   logger.info(f"Loaded {len(raw_fhir_data)} FHIR bundles.")
 
    logger.info("Extracting Patient resources...")
-   df_raw = transform_resources(fhir_data)
+   fhir_patient_data = transform_resources(raw_fhir_data)
 
-   if df_raw.empty:
+   if fhir_patient_data.empty:
        logger.warning("No Patient resources found.")
        return
   
-   logger.info(f"Extracted {len(df_raw)} Patient records.")
+   logger.info(f"Extracted {len(fhir_patient_data)} Patient records.")
 
    logger.info("Renaming and filtering relevant columns...")
-   df_clean = rename_and_filter_columns(df_raw, column_rename_map=COLUMN_RENAME_MAP)
+   patient_data_filtered = rename_and_filter_columns(fhir_patient_data, column_rename_map=COLUMN_RENAME_MAP)
 
    logger.info("Converting column types...")
-   df_clean = convert_column_dtypes(
-       df_clean,
+   patient_data_converted = convert_column_dtypes(
+       patient_data_filtered,
        date_columns=DATE_COLUMNS,
        bool_columns=BOOL_COLUMNS
    )
 
    logger.info("Replacing null values...")
-   df_clean = clean_null_values(df_clean)
+   patient_data_transformed = clean_null_values(patient_data_converted)
 
-   if df_clean.empty:
+   if patient_data_transformed.empty:
        logger.warning("No Patient records left after cleaning.")
        return
 
    try:
        logger.info("Validating patient data...")
-       validate_patient_data(df_clean)
+       validate_patient_data(patient_data_transformed)
        logger.info("Patient data passed validation.")
    except Exception as e:
        logger.error(f"Validation failed: {e}")
        return
 
    logger.info(f"Storing validated data.")
-   save_to_parquet(df_clean, PROCESSED_DATA_DIR)
+   save_to_parquet(patient_data_transformed, PROCESSED_DATA_DIR)
    logger.info(f"Data saved to {PROCESSED_DATA_DIR}")
 
-   save_to_postgres(df_clean, table_name=TABLE_NAME, db_name=DATABASE_URL)
+   save_to_postgres(patient_data_transformed, table_name=TABLE_NAME, db_name=DATABASE_URL)
    logger.info(f"Data saved to {TABLE_NAME}")
 
-   logger.info("FHIR Patient data processed successfully.")
+   logger.info("FHIR Patient data processed and saved successfully.")
 
 if __name__ == '__main__':
    main()

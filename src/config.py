@@ -1,16 +1,18 @@
-""" Module to set variables to be used throughout the project. """
+""" Module to set variables to be used throughout the project, enabling clean and consistent variable changes. """
 import os
 from datetime import datetime
 
+# Directory variables
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 RAW_DATA_DIR = os.path.join(ROOT_DIR, 'data/raw')
 CURRENT_DATE = datetime.today().strftime('%Y-%m-%d')
 PROCESSED_DATA_DIR = os.path.join(ROOT_DIR, f'data/processed/patients_{CURRENT_DATE}')
 
-
+# Database variables
 DATABASE_URL = 'postgresql://testuser:testpass@db:5432/testdb'
 TABLE_NAME = "patients"
 
+# Function variables
 DATE_COLUMNS = ['birth_date', 'deceased_date']
 BOOL_COLUMNS = ['multiple_birth_bool']
 PATIENT_RESOURCE_TYPE = 'Patient'

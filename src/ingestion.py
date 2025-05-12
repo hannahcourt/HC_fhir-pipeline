@@ -7,6 +7,8 @@ def load_fhir_data(data_dir: str):
    """
    Loads FHIR patient data from JSON files in a specified directory.
 
+   This can be re-used for different resource types.
+
    Args:
        data_dir (str): The path to the directory containing the JSON files.
 
