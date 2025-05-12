@@ -133,3 +133,20 @@ Run tests: `make docker-test`
 ## 🧰 Docker Installation
 
 Install Docker Desktop from the official site: [https://www.docker.com/products/docker-desktop]
+
+## 🔧 How could this project be scaled?
+
+- Easily configurable: Key variables such as file paths, column mappings, and table names are centralised in config.py, making it simple to adapt the pipeline to new environments or requirements.
+- Supports modular expansion: Transformation logic is broken into reusable components, allowing the pipeline to be extended to process additional FHIR resource types (e.g. Condition, Observation) with minimal changes and re-using functions.
+- Schema validation included: Uses Pandera for validating the structure and data types of patient records, ensuring data quality and simplifying integration with downstream systems without constant maintenance.
+- Scalable for future enhancements: The codebase is designed to support scaling via orchestration tools, or distributed processing libraries like Dask or Spark if required for larger data volumes.
+- Adaptable processing flow: The main() function orchestrates a clean end-to-end pipeline, which can be refactored into a dynamic, multi-resource handler to process various FHIR resource types from a config-driven loop.
+
+## 🔧 How could this project be secured?
+
+- Environment-based secrets: Replaces hardcoded database credentials with environment variables using os.environ, enabling secure secret management across environments.
+- Safe file handling: Accepts only valid .json files and prevents path traversal attacks by sanitizing and validating input filenames.
+- Log sanitisation: Avoids logging sensitive personally identifiable information such as names, IDs, or contact details, protecting data confidentiality in logs or print statements.
+- Data minimisation options: Provides a foundation for adding de-identification steps depending on the data's purpose. 
+- Container hardening: Encourages running containers as non-root users with read-only volumes and limited host access.
+- Security testing: Supports integration of security linters and tests to catch unsafe code patterns and handle edge-case input safely.
